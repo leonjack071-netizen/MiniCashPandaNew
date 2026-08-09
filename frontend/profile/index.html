@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MiniCashPanda - Profile</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#071525;
+color:#fff;
+padding:14px;
+padding-bottom:90px;
+min-height:100vh;
+overflow-y:scroll;
+}
+
+.container{
+max-width:390px;
+margin:auto;
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
+
+.logo{
+font-size:22px;
+font-weight:bold;
+}
+
+.userBox{
+background:#132544;
+padding:7px 14px;
+border-radius:30px;
+font-size:13px;
+color:#BFD7FF;
+}
+
+.profileCard{
+background:linear-gradient(135deg,#18A0FB,#2D5BFF);
+padding:18px;
+border-radius:22px;
+box-shadow:0 10px 25px rgba(0,120,255,.30);
+margin-bottom:15px;
+}
+
+.avatar{
+width:80px;
+height:80px;
+margin:0 auto 12px;
+border-radius:50%;
+background:rgba(255,255,255,.15);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:40px;
+}
+
+.profileName{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin-bottom:5px;
+}
+
+.profileSub{
+text-align:center;
+font-size:13px;
+color:#E8F3FF;
+margin-bottom:15px;
+}
+
+.infoCard{
+background:rgba(255,255,255,.12);
+border:1px solid rgba(255,255,255,.18);
+border-radius:14px;
+padding:12px;
+margin-bottom:10px;
+}
+
+.infoTitle{
+font-size:12px;
+opacity:.85;
+margin-bottom:5px;
+}
+
+.infoValue{
+font-size:20px;
+font-weight:bold;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+font-size:15px;
+font-weight:bold;
+color:#fff;
+background:linear-gradient(90deg,#17C8FF,#2ED573);
+cursor:pointer;
+margin-top:10px;
+}
+
+.bottomNav{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    background:#0A162D;
+    display:flex;
+    justify-content:space-around;
+    padding:10px 0;
+    border-top:1px solid rgba(255,255,255,.08);
+}
+
+.navItem{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-decoration:none;
+    color:#9DB8FF;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.navActive{
+    color:#20B8FF;
+}
+
+.navIcon{
+    font-size:20px;
+    margin-bottom:4px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<div class="logo">
+🐼 MiniCashPanda
+</div>
+
+<div class="userBox" id="headerTelegramId">
+Loading...
+</div>
+
+</div>
+
+<div class="profileCard">
+
+<div class="avatar">
+    <img id="profilePhoto"
+         src="/images/default-avatar.png"
+         style="width:80px;height:80px;border-radius:50%;object-fit:cover;">
+</div>
+
+<div class="profileName" id="userName">
+Loading...
+</div>
+
+<div class="profileSub">
+MiniCashPanda Member
+</div>
+
+<div class="infoCard">
+<div class="infoTitle">Telegram ID</div>
+<div class="infoValue" id="telegramId">Loading...</div>
+</div>
+
+<div class="infoCard">
+<div class="infoTitle">Total Balance</div>
+<div class="infoValue" id="balance">৳0</div>
+</div>
+
+<div class="infoCard">
+<div class="infoTitle">Total Earnings</div>
+<div class="infoValue" id="earnings">৳0</div>
+</div>
+
+<div class="infoCard">
+<div class="infoTitle">Total Referrals</div>
+<div class="infoValue" id="referrals">0</div>
+</div>
+
+<button id="copyReferralBtn">
+🔗 Copy Referral Link
+</button>
+
+</div>
+
+</div>
+
+<!-- Bottom Navigation -->
+
+<div class="bottomNav">
+
+<a href="/home/index.html" class="navItem">
+    <span class="navIcon">🏠</span>
+    <span>Home</span>
+</a>
+
+<a href="/profile/index.html" class="navItem navActive">
+    <span class="navIcon">👤</span>
+    <span>Profile</span>
+</a>
+
+<a href="/withdraw/index.html" class="navItem">
+    <span class="navIcon">💸</span>
+    <span>Withdraw</span>
+</a>
+
+<a href="/history/index.html" class="navItem">
+    <span class="navIcon">📜</span>
+    <span>History</span>
+</a>
+
+</div>
+<script>
+
+const telegramId = localStorage.getItem("telegramId");
+
+async function loadProfile(){
+
+try{
+
+const response = await fetch("/api/get-user",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({telegramId})
+});
+
+const data = await response.json();
+
+if(!data.success){
+alert("Failed to load profile");
+return;
+}
+
+const user = data.user;
+
+document.getElementById("headerTelegramId").innerText =
+"ID: " + user.telegramId;
+
+document.getElementById("userName").innerText =
+user.fullName || user.username || ("User " + user.telegramId);
+
+document.getElementById("telegramId").innerText =
+user.telegramId;
+
+document.getElementById("balance").innerText =
+"৳" + user.balance;
+
+document.getElementById("earnings").innerText =
+"৳" + user.totalEarnings;
+
+document.getElementById("referrals").innerText =
+user.totalReferrals;
+
+}catch(err){
+
+alert("Server Error!");
+
+}
+
+}
+
+loadProfile();
+
+document.getElementById("copyReferralBtn").onclick=()=>{
+
+const link =
+"https://t.me/MiniCashPanda_bot?start="+telegramId;
+
+navigator.clipboard.writeText(link);
+
+alert("Referral link copied!");
+
+};
+
+</script>
+
+</body>
+</html>
+

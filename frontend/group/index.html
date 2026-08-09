@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Join Group</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#08172E;
+    color:#fff;
+    padding:20px;
+}
+
+.card{
+    background:#132544;
+    border-radius:18px;
+    padding:20px;
+    margin-top:40px;
+    text-align:center;
+    box-shadow:0 0 20px rgba(0,0,0,.3);
+}
+
+h2{
+    margin-bottom:10px;
+}
+
+p{
+    color:#b8c7e0;
+    margin-bottom:25px;
+    line-height:1.5;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:15px;
+}
+
+.joinBtn{
+    background:#2D7CFF;
+    color:#fff;
+}
+
+.claimBtn{
+    background:linear-gradient(90deg,#1EB8FF,#2BE66B);
+    color:#fff;
+}
+
+.backBtn{
+    background:linear-gradient(90deg,#18A0FB,#2D5BFF);
+    color:#fff;
+    box-shadow:0 4px 15px rgba(24,160,251,.4);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>👥 Join Telegram Group</h2>
+
+<p>
+Join our official Telegram Group and claim your
+<b>৳10 Bonus</b>.
+</p>
+
+<button
+class="joinBtn"
+onclick="window.open('https://t.me/minicashpanda90')">
+
+JOIN GROUP
+
+</button>
+
+<button
+class="claimBtn"
+id="claimBtn">
+
+CLAIM BONUS
+
+</button>
+
+<button
+class="backBtn"
+id="backBtn">
+
+⬅ Back
+
+</button>
+
+</div>
+
+
+<script>
+
+document
+.getElementById("claimBtn")
+.addEventListener("click", async function(){
+
+    const telegramId =
+        localStorage.getItem("telegramId");
+
+    if(!telegramId){
+
+        alert("Telegram ID not found.");
+
+        return;
+
+    }
+
+    this.disabled = true;
+    this.innerText = "Checking...";
+
+    try{
+
+        const verify =
+            await fetch("/api/check-group", {
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:JSON.stringify({
+                    telegramId:telegramId
+                })
+
+            });
+
+        const verifyData =
+            await verify.json();
+
+        if(!verifyData.joined){
+
+            alert(
+                "Please join our Telegram Group first."
+            );
+
+            this.disabled = false;
+            this.innerText = "CLAIM BONUS";
+
+            return;
+
+        }
+
+
+        const response =
+            await fetch("/api/group-bonus", {
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:JSON.stringify({
+                    telegramId:telegramId
+                })
+
+            });
+
+        const data =
+            await response.json();
+
+        alert(data.message);
+
+        if(data.success){
+
+            window.location.href =
+                "/home/index.html";
+
+        }
+
+    }catch(error){
+
+        alert("Server Error");
+
+    }
+
+    this.disabled = false;
+    this.innerText = "CLAIM BONUS";
+
+});
+
+
+document
+.getElementById("backBtn")
+.addEventListener("click",function(){
+
+    window.location.href =
+        "/home/index.html";
+
+});
+
+</script>
+
+</body>
+
+</html>

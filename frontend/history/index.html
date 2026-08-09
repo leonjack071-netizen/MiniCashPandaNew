@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>MiniCashPanda - History</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#071525;
+color:#fff;
+padding:14px;
+padding-bottom:90px;
+min-height:100vh;
+overflow-y:scroll;
+}
+
+.container{
+max-width:390px;
+margin:auto;
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:15px;
+}
+
+.logo{
+font-size:22px;
+font-weight:bold;
+}
+
+.userBox{
+background:#132544;
+padding:7px 14px;
+border-radius:30px;
+font-size:13px;
+color:#BFD7FF;
+}
+
+.historyCard{
+background:linear-gradient(135deg,#18A0FB,#2D5BFF);
+padding:18px;
+border-radius:22px;
+box-shadow:0 10px 25px rgba(0,120,255,.30);
+margin-bottom:15px;
+}
+
+h1{
+text-align:center;
+font-size:24px;
+margin-bottom:15px;
+}
+
+.historyItem{
+background:rgba(255,255,255,.10);
+border:1px solid rgba(255,255,255,.15);
+border-radius:18px;
+padding:16px;
+margin-bottom:14px;
+box-shadow:0 8px 25px rgba(0,0,0,.30);
+transition:.25s;
+}
+
+.historyItem:active{
+transform:scale(.98);
+}
+
+.historyTitle{
+font-size:18px;
+font-weight:700;
+color:#FFFFFF;
+margin-bottom:10px;
+}
+
+.historySub{
+font-size:14px;
+color:#D6E6FF;
+margin-top:6px;
+line-height:1.5;
+}
+
+.bottomNav{
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+background:#0A162D;
+display:flex;
+justify-content:space-around;
+padding:10px 0;
+border-top:1px solid rgba(255,255,255,.08);
+}
+
+.navItem{
+display:flex;
+flex-direction:column;
+align-items:center;
+text-decoration:none;
+color:#9DB8FF;
+font-size:12px;
+font-weight:bold;
+}
+
+.navActive{
+color:#20B8FF;
+}
+
+.navIcon{
+font-size:20px;
+margin-bottom:4px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<div class="logo">
+🐼 MiniCashPanda
+</div>
+
+<div class="userBox" id="headerTelegramId">
+Loading...
+</div>
+
+</div>
+
+
+<div class="historyCard">
+
+<h1>History</h1>
+
+<div
+id="historyList"
+style="padding-bottom:90px;">
+
+<div class="historyItem">
+
+<div class="historyTitle">
+No History Found
+</div>
+
+<div class="historySub">
+Your transaction history will appear here.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="bottomNav">
+
+<a
+href="/home/index.html"
+class="navItem">
+
+<span class="navIcon">🏠</span>
+<span>Home</span>
+
+</a>
+
+<a
+href="/profile/index.html"
+class="navItem">
+
+<span class="navIcon">👤</span>
+<span>Profile</span>
+
+</a>
+
+<a
+href="/withdraw/index.html"
+class="navItem">
+
+<span class="navIcon">💸</span>
+<span>Withdraw</span>
+
+</a>
+
+<a
+href="/history/index.html"
+class="navItem navActive">
+
+<span class="navIcon">📜</span>
+<span>History</span>
+
+</a>
+
+</div>
+
+
+<script>
+
+const telegramId =
+localStorage.getItem("telegramId");
+
+
+document
+.getElementById("headerTelegramId")
+.innerText =
+"ID: " + (telegramId || "Loading");
+
+
+async function loadHistory(){
+
+try{
+
+const response =
+await fetch("/api/history",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+telegramId:telegramId
+})
+
+});
+
+
+const data =
+await response.json();
+
+
+if(!data.success){
+
+return;
+
+}
+
+
+const historyList =
+document.getElementById(
+"historyList"
+);
+
+historyList.innerHTML = "";
+
+
+if(data.history.length === 0){
+
+historyList.innerHTML = `
+
+<div class="historyItem">
+
+<div class="historyTitle">
+No History Found
+</div>
+
+<div class="historySub">
+Your transaction history will appear here.
+</div>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+data.history.forEach(item => {
+
+
+const icon =
+
+item.type === "Watch Ad"
+? "🎬"
+
+: item.type === "Withdraw"
+? "💸"
+
+: item.type === "Daily Bonus"
+? "🎁"
+
+: item.type === "Referral Bonus"
+? "🤝"
+
+: item.type === "Channel Bonus"
+? "📢"
+
+: item.type === "Group Bonus"
+? "👥"
+
+: "📄";
+
+
+const statusColor =
+
+item.status === "Success"
+? "#2ECC71"
+
+: item.status === "Pending"
+? "#FFD43B"
+
+: "#FF6B6B";
+
+
+historyList.innerHTML += `
+
+<div class="historyItem">
+
+<div class="historyTitle">
+${icon} ৳${item.amount} • ${item.type}
+</div>
+
+<div
+class="historySub"
+style="color:${statusColor};font-weight:bold;">
+
+📌 ${item.status}
+
+</div>
+
+<div class="historySub">
+
+📝 ${item.message}
+
+</div>
+
+<div class="historySub">
+
+🕒 ${new Date(
+item.createdAt
+).toLocaleString()}
+
+</div>
+
+</div>
+
+`;
+
+});
+
+
+}catch(error){
+
+console.log(
+"History Error:",
+error
+);
+
+}
+
+}
+
+
+loadHistory();
+
+</script>
+
+</body>
+
+</html>
