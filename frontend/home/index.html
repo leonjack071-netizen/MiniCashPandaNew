@@ -10,6 +10,8 @@ content="width=device-width, initial-scale=1.0">
 
 <title>MiniCashPanda</title>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
 
 *{
@@ -734,13 +736,17 @@ text-align:center;
    GET TELEGRAM USER
 ========================= */
 
-let telegramId = localStorage.getItem("telegramId");
+
+const tg = window.Telegram.WebApp;
+
+tg.ready();
+
+let telegramId = tg.initDataUnsafe?.user?.id;
 
 if (!telegramId) {
-    telegramId = "5866101102";
-    localStorage.setItem("telegramId", telegramId);
+    console.log("Telegram user ID not found");
+    telegramId = localStorage.getItem("telegramId");
 }
-
 
 /* =========================
    LOAD USER DATA
@@ -793,6 +799,15 @@ async function registerUser(){
 
     try{
 
+        const telegramUser =
+            tg.initDataUnsafe?.user;
+
+        const username =
+            telegramUser?.username || "";
+
+        const referralCode =
+            tg.initDataUnsafe?.start_param || "";
+
         const response = await fetch("/api/register",{
 
             method:"POST",
@@ -805,9 +820,9 @@ async function registerUser(){
 
                 telegramId:telegramId,
 
-                username:"",
+                username:username,
 
-                referralCode:""
+                referralCode:referralCode
 
             })
 
