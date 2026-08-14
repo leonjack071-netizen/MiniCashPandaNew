@@ -12,6 +12,11 @@ const userSchema = new mongoose.Schema({
     default: "",
   },
 
+  photoUrl: {
+    type: String,
+    default: "",
+  },
+
   lastAdWatchTime: {
     type: Date,
     default: null,
