@@ -290,7 +290,8 @@ loadProfile();
 document.getElementById("copyReferralBtn").onclick=()=>{
 
 const link =
-"https://t.me/MiniCashPanda_bot?start="+telegramId;
+"https://t.me/MiniCashPanda_bot?startapp=" +
+localStorage.getItem("referralCode");
 
 navigator.clipboard.writeText(link);
 
