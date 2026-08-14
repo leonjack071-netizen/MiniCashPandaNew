@@ -8,6 +8,8 @@
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
+<script src='//libtl.com/sdk.js' data-zone='11519679' data-sdk='show_11519679'></script>
+
 <title>MiniCashPanda</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -921,39 +923,82 @@ document
 
 
 /* =========================
-   WATCH ADS
+   WATCH ADS - MONETAG
 ========================= */
 
 document
 .getElementById("watchAdsBtn")
-.addEventListener("click",async function(){
+.addEventListener("click", async function(){
 
     if(!telegramId){
 
         alert("Telegram ID not found.");
-
         return;
 
     }
 
-    this.disabled=true;
-
-    this.innerText="Watching...";
+    this.disabled = true;
+    this.innerText = "Opening Ad...";
 
     try{
 
+        if(typeof show_11519679 !== "function"){
+
+            alert("Ad is not ready. Please try again.");
+
+            this.disabled = false;
+            this.innerText = "▶ Watch Ad";
+
+            return;
+        }
+
+        /*
+         * Monetag Rewarded Interstitial
+         */
+        const monetagResult = await show_11519679({
+            ymid: telegramId
+        });
+
+        console.log(
+            "Monetag Result:",
+            monetagResult
+        );
+
+        /*
+         * Reward only for a valued event.
+         */
+        if(
+            !monetagResult ||
+            monetagResult.reward_event_type !== "valued"
+        ){
+
+            alert(
+                "Ad was not completed. No reward."
+            );
+
+            this.disabled = false;
+            this.innerText = "▶ Watch Ad";
+
+            return;
+        }
+
+        /*
+         * Monetag ad completed successfully.
+         * Existing backend reward system.
+         */
+        this.innerText = "Giving Reward...";
+
         const response =
-            await fetch("/api/watch-ad",{
+            await fetch("/api/watch-ad", {
 
-                method:"POST",
+                method: "POST",
 
-                headers:{
-                    "Content-Type":
-                    "application/json"
+                headers: {
+                    "Content-Type": "application/json"
                 },
 
-                body:JSON.stringify({
-                    telegramId:telegramId
+                body: JSON.stringify({
+                    telegramId: telegramId
                 })
 
             });
@@ -961,28 +1006,38 @@ document
         const data =
             await response.json();
 
-        alert(
-            data.message ||
-            "Something went wrong."
-        );
-
         if(data.success){
 
             await loadUserData();
+
+            alert(
+                "Congratulations! You earned ৳2."
+            );
+
+        }else{
+
+            alert(
+                data.message ||
+                "Reward could not be given."
+            );
 
         }
 
     }catch(error){
 
+        console.log(
+            "Monetag Ad Error:",
+            error
+        );
+
         alert(
-            "Server connection failed."
+            "Ad was not completed. No reward."
         );
 
     }
 
-    this.disabled=false;
-
-    this.innerText="▶ Watch Ad";
+    this.disabled = false;
+    this.innerText = "▶ Watch Ad";
 
 });
 
