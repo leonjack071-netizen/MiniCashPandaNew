@@ -6,6 +6,8 @@
 
 <title>MiniCashPanda - Profile</title>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
 
 *{
@@ -236,7 +238,15 @@ MiniCashPanda Member
 </div>
 <script>
 
-const telegramId = localStorage.getItem("telegramId");
+const tg = window.Telegram.WebApp;
+
+tg.ready();
+
+const telegramUser = tg.initDataUnsafe?.user;
+
+const telegramId =
+    telegramUser?.id ||
+    localStorage.getItem("telegramId");
 
 async function loadProfile(){
 
@@ -258,6 +268,16 @@ return;
 }
 
 const user = data.user;
+
+const profilePhoto =
+    document.getElementById("profilePhoto");
+
+if (telegramUser?.photo_url) {
+
+    profilePhoto.src =
+        telegramUser.photo_url;
+
+}
 
 document.getElementById("headerTelegramId").innerText =
 "ID: " + user.telegramId;
