@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MiniCashPanda Admin Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #07152d;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #0d2142;
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1c3b65;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .logout {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 9px;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .welcome {
+            margin-bottom: 20px;
+        }
+
+        .welcome h2 {
+            font-size: 23px;
+            margin-bottom: 5px;
+        }
+
+        .welcome p {
+            color: #8ea5c8;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .card {
+            background: #0d2142;
+            border: 1px solid #1c3b65;
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .card-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            color: #8ea5c8;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .card-value {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-top: 25px;
+        }
+
+        .section-title {
+            font-size: 19px;
+            margin-bottom: 14px;
+        }
+
+        .control-card {
+            background: #0d2142;
+            border: 1px solid #1c3b65;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-info h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .control-info p {
+            color: #8ea5c8;
+            font-size: 13px;
+        }
+
+        .control-btn {
+            background: #18a0fb;
+            border: none;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 9px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 500px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="brand">
+        🐼 MiniCashPanda Admin
+    </div>
+
+    <button class="logout" onclick="logout()">
+        Logout
+    </button>
+
+</header>
+
+<div class="container">
+
+    <div class="welcome">
+
+        <h2>Admin Dashboard</h2>
+
+        <p>
+            Manage your MiniCashPanda application
+        </p>
+
+    </div>
+
+    <div class="stats">
+
+        <div class="card">
+
+            <div class="card-icon">👥</div>
+
+            <div class="card-title">
+                TOTAL USERS
+            </div>
+
+            <div class="card-value" id="totalUsers">
+                0
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="card-icon">💰</div>
+
+            <div class="card-title">
+                TOTAL BALANCE
+            </div>
+
+            <div class="card-value" id="totalBalance">
+                ৳0
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="card-icon">📺</div>
+
+            <div class="card-title">
+                TOTAL ADS
+            </div>
+
+            <div class="card-value" id="totalAds">
+                0
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="card-icon">💸</div>
+
+            <div class="card-title">
+                PENDING WITHDRAW
+            </div>
+
+            <div class="card-value" id="pendingWithdraw">
+                0
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <div class="section-title">
+            ⚙️ Admin Controls
+        </div>
+
+        <div class="control-card">
+
+            <div class="control-info">
+
+                <h3>👥 Users</h3>
+
+                <p>
+                    View and manage users
+                </p>
+
+            </div>
+
+            <button
+    class="control-btn"
+    onclick="openUsers()">
+    Users
+</button>
+
+        </div>
+
+        <div class="control-card">
+
+            <div class="control-info">
+
+                <h3>💸 Withdrawals</h3>
+
+                <p>
+                    Approve or reject withdrawal requests
+                </p>
+
+            </div>
+
+            <button
+    class="control-btn"
+    onclick="openWithdraws()">
+    Withdraw
+</button>
+
+        </div>
+
+        <div class="control-card">
+
+            <div class="control-info">
+
+                <h3>🎁 Rewards</h3>
+
+                <p>
+                    Manage bonuses and rewards
+                </p>
+
+            </div>
+
+            <button class="control-btn">
+                Rewards
+            </button>
+
+        </div>
+
+        <div class="control-card">
+
+            <div class="control-info">
+
+                <h3>⚙️ Settings</h3>
+
+                <p>
+                    Manage app settings
+                </p>
+
+            </div>
+
+            <button class="control-btn">
+                Settings
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function logout() {
+
+    window.location.href = "/admin";
+
+}
+
+function openUsers() {
+    window.location.href = "/admin/users.html";
+}
+
+function openWithdraws() {
+    window.location.href = "/admin/withdraws.html";
+}
+
+async function loadDashboardStats() {
+
+    try {
+
+        const response = await fetch(
+            "/api/admin/dashboard-stats"
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error(data.message);
+            return;
+        }
+
+        const stats = data.stats;
+
+        document.getElementById("totalUsers").innerText =
+            stats.totalUsers;
+
+        document.getElementById("totalBalance").innerText =
+            "৳" + Number(stats.totalBalance).toFixed(2);
+
+        document.getElementById("totalAds").innerText =
+            stats.totalAds;
+
+        document.getElementById("pendingWithdraw").innerText =
+            stats.pendingWithdraw;
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard Stats Error:",
+            error
+        );
+
+    }
+}
+
+loadDashboardStats();
+
+</script>
+
+</body>
+</html>

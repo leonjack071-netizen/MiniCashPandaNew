@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MiniCashPanda Users</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#07152d;
+    color:white;
+    min-height:100vh;
+}
+
+.header{
+    background:#0d2142;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    border-bottom:1px solid #1c3b65;
+}
+
+.backBtn{
+    background:#1c3b65;
+    color:white;
+    border:0;
+    padding:9px 13px;
+    border-radius:9px;
+}
+
+.headerTitle{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+.userCount{
+    color:#8ea5c8;
+    font-size:14px;
+    margin-bottom:15px;
+}
+
+.userCard{
+    background:#0d2142;
+    border:1px solid #1c3b65;
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:12px;
+}
+
+.userTop{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:14px;
+}
+
+.username{
+    font-size:17px;
+    font-weight:bold;
+}
+
+.telegramId{
+    color:#8ea5c8;
+    font-size:12px;
+    margin-top:5px;
+}
+
+.balance{
+    color:#49e58a;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.infoGrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+}
+
+.infoBox{
+    background:#081a35;
+    border-radius:10px;
+    padding:10px;
+}
+
+.infoTitle{
+    color:#8ea5c8;
+    font-size:11px;
+    margin-bottom:5px;
+}
+
+.infoValue{
+    font-size:14px;
+    font-weight:bold;
+}
+
+.loading{
+    text-align:center;
+    color:#8ea5c8;
+    padding:30px;
+}
+
+.error{
+    text-align:center;
+    color:#ff6b7a;
+    padding:30px;
+}
+
+@media(max-width:500px){
+    .infoGrid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+.viewBtn{
+    width:100%;
+    background:#1c5fd4;
+    color:white;
+    border:0;
+    padding:11px;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-bottom:12px;
+}
+
+.viewBtn:active{
+    transform:scale(.98);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+
+    <button class="backBtn" onclick="goBack()">
+        ← Back
+    </button>
+
+    <div class="headerTitle">
+        👥 Users
+    </div>
+
+</div>
+
+<div class="container">
+
+    <div class="userCount" id="userCount">
+        Loading users...
+    </div>
+
+    <div id="usersList">
+        <div class="loading">
+            Loading...
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+async function loadUsers(){
+
+    const usersList =
+        document.getElementById("usersList");
+
+    const userCount =
+        document.getElementById("userCount");
+
+    try{
+
+        const response =
+            await fetch("/api/admin/users");
+
+        const data =
+            await response.json();
+
+        if(!data.success){
+
+            usersList.innerHTML =
+                '<div class="error">' +
+                (data.message || "Failed to load users") +
+                '</div>';
+
+            return;
+        }
+
+        const users = data.users || [];
+
+        userCount.innerText =
+            "Total Users: " + users.length;
+
+        if(users.length === 0){
+
+            usersList.innerHTML =
+                '<div class="loading">No users found.</div>';
+
+            return;
+        }
+
+        usersList.innerHTML = "";
+
+        users.forEach(user => {
+
+            const card =
+                document.createElement("div");
+
+            card.className = "userCard";
+
+            card.innerHTML = `
+
+                <div class="userTop">
+
+                    <div>
+
+                        <div class="username">
+                            ${user.username || "No Username"}
+                        </div>
+
+                        <div class="telegramId">
+                            ID: ${user.telegramId}
+                        </div>
+
+                    </div>
+
+                    <div class="balance">
+                        ৳${Number(user.balance || 0).toFixed(2)}
+                    </div>
+
+                </div>
+
+              <button
+    class="viewBtn"
+    onclick="viewUser('${user.telegramId}')">
+    👤 VIEW DETAILS
+</button>
+
+                <div class="infoGrid">
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            EARNINGS
+                        </div>
+
+                        <div class="infoValue">
+                            ৳${Number(user.totalEarnings || 0).toFixed(2)}
+                        </div>
+
+                    </div>
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            REFERRALS
+                        </div>
+
+                        <div class="infoValue">
+                            ${user.totalReferrals || 0}
+                        </div>
+
+                    </div>
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            ADS
+                        </div>
+
+                        <div class="infoValue">
+                            ${user.watchAdsCount || 0}
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+
+            usersList.appendChild(card);
+
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        usersList.innerHTML =
+            '<div class="error">' +
+            'Unable to connect to server' +
+            '</div>';
+    }
+}
+
+function goBack(){
+
+    window.location.href =
+        "/admin/dashboard.html";
+}
+
+loadUsers();
+
+function viewUser(telegramId){
+
+    window.location.href =
+        "/admin/user-details.html?telegramId=" +
+        encodeURIComponent(telegramId);
+}
+
+</script>
+
+</body>
+</html>

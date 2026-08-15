@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>User Details - MiniCashPanda</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#07152d;
+    color:white;
+    min-height:100vh;
+}
+
+.header{
+    background:#0d2142;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    border-bottom:1px solid #1c3b65;
+}
+
+.backBtn{
+    background:#1c3b65;
+    color:white;
+    border:0;
+    padding:9px 13px;
+    border-radius:9px;
+    cursor:pointer;
+}
+
+.headerTitle{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+    padding:20px;
+}
+
+.profileCard{
+    background:#0d2142;
+    border:1px solid #1c3b65;
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:15px;
+}
+
+.profileTop{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.avatar{
+    width:65px;
+    height:65px;
+    border-radius:50%;
+    object-fit:cover;
+    background:#1c3b65;
+}
+
+.name{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.telegramId{
+    color:#8ea5c8;
+    font-size:13px;
+    margin-top:5px;
+    word-break:break-all;
+}
+
+.balance{
+    background:#081a35;
+    border-radius:14px;
+    padding:18px;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.balanceTitle{
+    color:#8ea5c8;
+    font-size:12px;
+}
+
+.balanceValue{
+    color:#49e58a;
+    font-size:28px;
+    font-weight:bold;
+    margin-top:6px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.infoBox{
+    background:#081a35;
+    border-radius:12px;
+    padding:14px;
+}
+
+.infoTitle{
+    color:#8ea5c8;
+    font-size:11px;
+    margin-bottom:6px;
+}
+
+.infoValue{
+    font-size:16px;
+    font-weight:bold;
+    word-break:break-word;
+}
+
+.loading{
+    text-align:center;
+    color:#8ea5c8;
+    padding:40px;
+}
+
+.error{
+    text-align:center;
+    color:#ff6b7a;
+    padding:30px;
+}
+
+@media(max-width:500px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+    <button
+        class="backBtn"
+        onclick="goBack()"
+    >
+        ← Users
+    </button>
+
+    <div class="headerTitle">
+        👤 User Details
+    </div>
+
+</div>
+
+
+<div class="container">
+
+    <div id="content">
+
+        <div class="loading">
+            Loading user...
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function getTelegramId(){
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    return params.get("telegramId");
+}
+
+
+async function loadUser(){
+
+    const content =
+        document.getElementById("content");
+
+    const telegramId =
+        getTelegramId();
+
+    if(!telegramId){
+
+        content.innerHTML =
+            '<div class="error">' +
+            'Telegram ID not found.' +
+            '</div>';
+
+        return;
+    }
+
+    try{
+
+        const response =
+            await fetch(
+                "/api/admin/user-details?telegramId=" +
+                encodeURIComponent(telegramId)
+            );
+
+        const data =
+            await response.json();
+
+        if(!data.success){
+
+            content.innerHTML =
+                '<div class="error">' +
+                (data.message || "User not found") +
+                '</div>';
+
+            return;
+        }
+
+        const user = data.user;
+
+        const photo =
+            user.photoUrl || "";
+
+        content.innerHTML = `
+
+            <div class="profileCard">
+
+                <div class="profileTop">
+
+                    ${
+                        photo
+                        ?
+                        `<img
+                            class="avatar"
+                            src="${photo}"
+                            alt="User"
+                        >`
+                        :
+                        `<div class="avatar"></div>`
+                    }
+
+                    <div>
+
+                        <div class="name">
+                            ${user.username || "No Username"}
+                        </div>
+
+                        <div class="telegramId">
+                            Telegram ID: ${user.telegramId}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="balance">
+
+                    <div class="balanceTitle">
+                        CURRENT BALANCE
+                    </div>
+
+                    <div class="balanceValue">
+                        ৳${Number(user.balance || 0).toFixed(2)}
+                    </div>
+
+                </div>
+
+
+                <div class="grid">
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            TOTAL EARNINGS
+                        </div>
+
+                        <div class="infoValue">
+                            ৳${Number(
+                                user.totalEarnings || 0
+                            ).toFixed(2)}
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            TOTAL REFERRALS
+                        </div>
+
+                        <div class="infoValue">
+                            ${user.totalReferrals || 0}
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            ADS WATCHED
+                        </div>
+
+                        <div class="infoValue">
+                            ${user.watchAdsCount || 0}
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            ADS TODAY
+                        </div>
+
+                        <div class="infoValue">
+                            ${user.adsToday || 0}
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            DAILY AD EARNINGS
+                        </div>
+
+                        <div class="infoValue">
+                            ৳${Number(
+                                user.dailyAdEarnings || 0
+                            ).toFixed(2)}
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            REFERRAL CODE
+                        </div>
+
+                        <div class="infoValue">
+                            ${user.referralCode || "-"}
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            REFERRED BY
+                        </div>
+
+                        <div class="infoValue">
+                            ${user.referredBy || "-"}
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            REGISTERED
+                        </div>
+
+                        <div class="infoValue">
+                            ${
+                                user.createdAt
+                                ?
+                                new Date(
+                                    user.createdAt
+                                ).toLocaleString()
+                                :
+                                "-"
+                            }
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            CHANNEL BONUS
+                        </div>
+
+                        <div class="infoValue">
+                            ${
+                                user.channelJoinBonusClaimed
+                                ? "Claimed"
+                                : "Not Claimed"
+                            }
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            GROUP BONUS
+                        </div>
+
+                        <div class="infoValue">
+                            ${
+                                user.groupJoinBonusClaimed
+                                ? "Claimed"
+                                : "Not Claimed"
+                            }
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }catch(error){
+
+        console.error(
+            "User Details Error:",
+            error
+        );
+
+        content.innerHTML =
+            '<div class="error">' +
+            'Unable to connect to server.' +
+            '</div>';
+    }
+}
+
+
+function goBack(){
+
+    window.location.href =
+        "/admin/users.html";
+}
+
+
+loadUser();
+
+</script>
+
+</body>
+
+</html>

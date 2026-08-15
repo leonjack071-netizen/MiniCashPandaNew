@@ -12,6 +12,7 @@ const groupBonusRoutes = require("./routes/groupBonusRoutes");
 const telegramRoutes = require("./routes/telegramRoutes");
 const historyRoutes = require("./routes/historyRoutes");
 const withdrawRoutes = require("./routes/withdrawRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -29,6 +30,7 @@ app.use("/api", groupBonusRoutes);
 app.use("/api", telegramRoutes);
 app.use("/api", historyRoutes);
 app.use("/api", withdrawRoutes);
+app.use("/api", adminRoutes);
 
 app.get("/", (req, res) => {
     res.sendFile(

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>MiniCashPanda Withdrawals</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#07152d;
+    color:white;
+    min-height:100vh;
+}
+
+.header{
+    background:#0d2142;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    border-bottom:1px solid #1c3b65;
+}
+
+.backBtn{
+    background:#1c3b65;
+    color:white;
+    border:0;
+    padding:9px 13px;
+    border-radius:9px;
+    cursor:pointer;
+}
+
+.headerTitle{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+.withdrawCount{
+    color:#8ea5c8;
+    font-size:14px;
+    margin-bottom:15px;
+}
+
+.withdrawCard{
+    background:#0d2142;
+    border:1px solid #1c3b65;
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:14px;
+}
+
+.topRow{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.userInfo{
+    min-width:0;
+}
+
+.telegramId{
+    font-size:15px;
+    font-weight:bold;
+    word-break:break-all;
+}
+
+.date{
+    color:#8ea5c8;
+    font-size:12px;
+    margin-top:5px;
+}
+
+.status{
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.pending{
+    background:#493d13;
+    color:#ffd84d;
+}
+
+.completed{
+    background:#123d2b;
+    color:#49e58a;
+}
+
+.rejected{
+    background:#4a1e28;
+    color:#ff7180;
+}
+
+.amountGrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-bottom:12px;
+}
+
+.infoBox{
+    background:#081a35;
+    border-radius:10px;
+    padding:10px;
+}
+
+.infoTitle{
+    color:#8ea5c8;
+    font-size:11px;
+    margin-bottom:5px;
+}
+
+.infoValue{
+    font-size:14px;
+    font-weight:bold;
+}
+
+.methodBox{
+    background:#081a35;
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:14px;
+}
+
+.methodTitle{
+    color:#8ea5c8;
+    font-size:11px;
+    margin-bottom:5px;
+}
+
+.methodValue{
+    font-size:15px;
+    font-weight:bold;
+}
+
+.account{
+    word-break:break-all;
+}
+
+.actions{
+    display:flex;
+    gap:10px;
+}
+
+.approveBtn,
+.rejectBtn{
+    flex:1;
+    border:0;
+    padding:12px;
+    border-radius:10px;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.approveBtn{
+    background:#168a50;
+}
+
+.rejectBtn{
+    background:#d43b4c;
+}
+
+.approveBtn:disabled,
+.rejectBtn:disabled{
+    opacity:.5;
+}
+
+.loading{
+    text-align:center;
+    color:#8ea5c8;
+    padding:30px;
+}
+
+.error{
+    text-align:center;
+    color:#ff6b7a;
+    padding:30px;
+}
+
+.empty{
+    text-align:center;
+    color:#8ea5c8;
+    padding:30px;
+    background:#0d2142;
+    border-radius:16px;
+}
+
+@media(max-width:600px){
+
+    .amountGrid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .topRow{
+        align-items:flex-start;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+    <button
+        class="backBtn"
+        onclick="goBack()"
+    >
+        ← Back
+    </button>
+
+    <div class="headerTitle">
+        💸 Withdrawals
+    </div>
+
+</div>
+
+
+<div class="container">
+
+    <div
+        class="withdrawCount"
+        id="withdrawCount"
+    >
+        Loading withdrawals...
+    </div>
+
+    <div id="withdrawList">
+
+        <div class="loading">
+            Loading...
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+async function loadWithdraws(){
+
+    const list =
+        document.getElementById("withdrawList");
+
+    const count =
+        document.getElementById("withdrawCount");
+
+    try{
+
+        const response =
+            await fetch("/api/admin/withdraws");
+
+        const data =
+            await response.json();
+
+        if(!data.success){
+
+            list.innerHTML =
+                '<div class="error">' +
+                (data.message || "Failed to load withdrawals") +
+                '</div>';
+
+            return;
+        }
+
+        const withdraws =
+            data.withdraws || [];
+
+        const pending =
+            withdraws.filter(
+                item => item.status === "Pending"
+            ).length;
+
+        count.innerText =
+            "Total Requests: " +
+            withdraws.length +
+            " • Pending: " +
+            pending;
+
+        if(withdraws.length === 0){
+
+            list.innerHTML =
+                '<div class="empty">' +
+                'No withdrawal requests found.' +
+                '</div>';
+
+            return;
+        }
+
+        list.innerHTML = "";
+
+        withdraws.forEach(withdraw => {
+
+            const card =
+                document.createElement("div");
+
+            card.className = "withdrawCard";
+
+            const status =
+                String(withdraw.status || "Pending");
+
+            let statusClass = "pending";
+
+            if(status === "Completed"){
+                statusClass = "completed";
+            }
+
+            if(status === "Rejected"){
+                statusClass = "rejected";
+            }
+
+            const createdAt =
+                withdraw.createdAt
+                ? new Date(withdraw.createdAt)
+                    .toLocaleString()
+                : "Unknown";
+
+            let actions = "";
+
+            if(status === "Pending"){
+
+                actions = `
+
+                    <div class="actions">
+
+                        <button
+                            class="approveBtn"
+                            onclick="approveWithdraw('${withdraw._id}')"
+                        >
+                            ✅ APPROVE
+                        </button>
+
+                        <button
+                            class="rejectBtn"
+                            onclick="rejectWithdraw('${withdraw._id}')"
+                        >
+                            ❌ REJECT
+                        </button>
+
+                    </div>
+
+                `;
+            }
+
+            card.innerHTML = `
+
+                <div class="topRow">
+
+                    <div class="userInfo">
+
+                        <div class="telegramId">
+                            ID: ${withdraw.telegramId}
+                        </div>
+
+                        <div class="date">
+                            ${createdAt}
+                        </div>
+
+                    </div>
+
+                    <div class="status ${statusClass}">
+                        ${status}
+                    </div>
+
+                </div>
+
+
+                <div class="amountGrid">
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            WITHDRAW
+                        </div>
+
+                        <div class="infoValue">
+                            ৳${Number(withdraw.amount || 0).toFixed(2)}
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            FEE 10%
+                        </div>
+
+                        <div class="infoValue">
+                            ৳${Number(withdraw.fee || 0).toFixed(2)}
+                        </div>
+
+                    </div>
+
+
+                    <div class="infoBox">
+
+                        <div class="infoTitle">
+                            RECEIVE
+                        </div>
+
+                        <div class="infoValue">
+                            ৳${Number(withdraw.receiveAmount || 0).toFixed(2)}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="methodBox">
+
+                    <div class="methodTitle">
+                        PAYMENT METHOD
+                    </div>
+
+                    <div class="methodValue">
+                        ${withdraw.method || "Unknown"}
+                    </div>
+
+                </div>
+
+
+                <div class="methodBox">
+
+                    <div class="methodTitle">
+                        ACCOUNT NUMBER
+                    </div>
+
+                    <div class="methodValue account">
+                        ${withdraw.accountNumber || "Unknown"}
+                    </div>
+
+                </div>
+
+                ${actions}
+
+            `;
+
+            list.appendChild(card);
+
+        });
+
+    }catch(error){
+
+        console.error(
+            "Withdraw Load Error:",
+            error
+        );
+
+        list.innerHTML =
+            '<div class="error">' +
+            'Unable to connect to server' +
+            '</div>';
+    }
+}
+
+
+async function approveWithdraw(withdrawId){
+
+    if(!confirm(
+        "Are you sure you want to approve this withdrawal?"
+    )){
+        return;
+    }
+
+    try{
+
+        const response =
+            await fetch(
+                "/api/admin/withdraw/approve",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body:JSON.stringify({
+                        withdrawId
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if(data.success){
+
+            alert(
+                "Withdrawal approved successfully."
+            );
+
+            loadWithdraws();
+
+        }else{
+
+            alert(
+                data.message ||
+                "Approval failed."
+            );
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "Unable to connect to server."
+        );
+    }
+}
+
+
+async function rejectWithdraw(withdrawId){
+
+    if(!confirm(
+        "Reject this withdrawal? The amount will be returned to the user's balance."
+    )){
+        return;
+    }
+
+    try{
+
+        const response =
+            await fetch(
+                "/api/admin/withdraw/reject",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+
+                    body:JSON.stringify({
+                        withdrawId
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if(data.success){
+
+            alert(
+                "Withdrawal rejected and balance refunded."
+            );
+
+            loadWithdraws();
+
+        }else{
+
+            alert(
+                data.message ||
+                "Rejection failed."
+            );
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "Unable to connect to server."
+        );
+    }
+}
+
+
+function goBack(){
+
+    window.location.href =
+        "/admin/dashboard.html";
+}
+
+
+loadWithdraws();
+
+</script>
+
+</body>
+
+</html>
