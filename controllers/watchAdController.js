@@ -14,20 +14,6 @@ const watchAd = async (req, res) => {
       });
     }
 
-    const now = new Date();
-
-    if (user.lastAdWatchTime) {
-      const timeDifference =
-        (now - user.lastAdWatchTime) / 1000;
-
-      if (timeDifference < 30) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Please wait 30 seconds before claiming again.",
-        });
-      }
-    }
 
     user.balance += 2;
     user.totalEarnings += 2;
