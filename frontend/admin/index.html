@@ -191,14 +191,14 @@ loginForm.addEventListener("submit", async function(e) {
 
         if (data.success) {
 
-            message.textContent = "Login successful!";
-            message.className = "success";
+    message.textContent = "Login successful!";
+    message.className = "success";
 
-            /*
-             * Dashboard আমরা পরের Step-এ তৈরি করব।
-             */
+    setTimeout(() => {
+        window.location.href = "/admin/dashboard.html";
+    }, 500);
 
-        } else {
+} else {
 
             message.textContent =
                 data.message || "Login failed";
