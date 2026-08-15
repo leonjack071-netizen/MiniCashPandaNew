@@ -1091,9 +1091,11 @@ document
         /*
          * Monetag Rewarded Interstitial
          */
+
         const monetagResult = await show_11519679({
-            ymid: telegramId
-        });
+    ymid: telegramId + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10),
+    requestVar: "watch_ads"
+});
 
         console.log(
             "Monetag Result:",
