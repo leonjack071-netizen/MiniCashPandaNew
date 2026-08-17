@@ -1090,40 +1090,16 @@ document
 
         /*
          * Monetag Rewarded Interstitial
+         * Reward after the ad Promise resolves.
          */
 
-        const monetagResult = await show_11519679({
-    ymid: telegramId + "_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10),
-    requestVar: "watch_ads"
-});
-
-        console.log(
-            "Monetag Result:",
-            monetagResult
-        );
-
-        /*
-         * Reward only for a valued event.
-         */
-        if(
-            !monetagResult ||
-            monetagResult.reward_event_type !== "valued"
-        ){
-
-            alert(
-                "Ad was not completed. No reward."
-            );
-
-            this.disabled = false;
-            this.innerText = "▶ Watch Ad";
-
-            return;
-        }
+        await show_11519679();
 
         /*
          * Monetag ad completed successfully.
          * Existing backend reward system.
          */
+
         this.innerText = "Giving Reward...";
 
         const response =
